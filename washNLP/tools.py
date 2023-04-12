@@ -68,10 +68,14 @@ def punctuation_syntax_features(phrase:str) -> dict:
 	return {
 		"num_exclamation_marks": phrase.count("!"),
 		"num_question_marks": phrase.count("?"),
-		"num_dots": phrase.count("."),
+		# "num_dots": phrase.count("."),
+		"num_dots": len(findall(r"[^.]\.\.?[^.]", phrase)),
+		"num_pauses": len(findall(r"\.\.\.{3}", phrase)),
+		"num_responses": len(findall(r"___", phrase)),
 		"num_capital": len(findall("[A-Z]", phrase)),
 		"num_quotes": len(findall(r"['\"]", phrase)),
-		"repeated_vowels": bool(len(findall("a{3,}|e{3,}|i{3,}|o{3,}|u{3,}|y{3,}", phrase, IGNORECASE)))
+		# "repeated_vowels": bool(len(findall("a{3,}|e{3,}|i{3,}|o{3,}|u{3,}|y{3,}", phrase, IGNORECASE)))
+		"repeated_vowels": bool(len(findall("[aeiouy-]{3,}", phrase, IGNORECASE)))
 	}
 
 
