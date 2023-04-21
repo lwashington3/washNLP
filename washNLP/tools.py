@@ -1,4 +1,7 @@
-from .enumerations import *
+try:
+	from .enumerations import *
+except ImportError:
+	from enumerations import *
 import pandas as pd
 
 
@@ -256,7 +259,32 @@ def main_villain_type(input_file:str) -> pd.DataFrame:
 		 								"Where": [data["Where"]], "VillainType": [VillainType(villain)]})
 		new_df = pd.concat([new_df, series], ignore_index=True)
 
+	new_df["VillainType"] = pd.to_numeric(new_df["VillainType"])
+	new_df["Quote"] = new_df["Quote"].convert_dtypes(convert_string=True)
+
 	return new_df
+
+
+def types(df:pd.DataFrame) -> dict:
+	from tensorflow import string, int8
+	from tensorflow.keras import Input
+	inputs = {}
+
+	for name, column in df.items():
+		dtype = column.dtype
+		if name == "VillainType":
+			dtype = tf.int8
+		elif dtype == object:
+			dtype = tf.string
+		else:
+			dtype = tf.int8
+		inputs[name] = Input(shape=(1,), name=name, dtype=dtype)
+
+	return inputs
+
+
+def get_vocab(series:pd.Series, regex=" "):
+	return series.str.split(regex, expand=True).stack().unique()
 
 
 def main():

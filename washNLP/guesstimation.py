@@ -6,4 +6,3 @@ def guesstimate(quote:str, villain_type:VillainType=None) -> float:
 
 
 # New plan, use clustering with one known quote as the starting point and let DBScan sort them into one of the categories and anything unclustered will be others.
-# Talk/ to email Gurbani to see how we might go about this
