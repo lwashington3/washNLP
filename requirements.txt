@@ -9,3 +9,4 @@ tensorflow
 pydot
 pydotplus
 graphviz
+tensorboard==2.12.1

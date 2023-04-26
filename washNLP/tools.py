@@ -6,7 +6,7 @@ import pandas as pd
 
 
 __ALL__ = ["sentiment_based_features", "punctuation_syntax_features", "map_tag_category", "Pattern",
-		   "resemblance_degree", "pattern_features", "villain_type", "main_villain_type"]
+		   "resemblance_degree", "pattern_features", "main_villain_type", "main_villain_type_ohe"]
 
 
 # region Bouazizi et Al "Sentiment Analysis: from Binary to Multi-Class Classification"
@@ -252,7 +252,7 @@ def main_villain_type(input_file:str) -> pd.DataFrame:
 	new_df = pd.DataFrame(columns=["Source", "Villain", "Quote", "Where", "VillainType"])
 	for _, data in df.iterrows():
 		row = data.filter(
-			["Anti Villain Score", "Beasts Score", "Authority Figures Score", "Fanatics Score", "Machines Score",
+			["Anti Villain Score", "Authority Figures Score", "Fanatics Score", "Machines Score",
 			 "Personifications of Evil Score", "Masterminds Score", "Equals Score", "Corrupted Score", "Other Score"])
 		villain = argmax(row) + 1
 		series = pd.DataFrame({"Source": [data["Source"]], "Villain": [data["Villain"]], "Quote": [data["Quote"]],
@@ -263,6 +263,29 @@ def main_villain_type(input_file:str) -> pd.DataFrame:
 	new_df["Quote"] = new_df["Quote"].convert_dtypes(convert_string=True)
 
 	return new_df
+
+
+def main_villain_type_ohe(input_file:str) -> pd.DataFrame:
+	from numpy import argmax
+
+	df = pd.read_csv(input_file)
+	update = pd.Series([0] * len(VillainType),
+					   index=["Anti Villain Score", "Authority Figures Score","Fanatics Score",
+							  "Machines Score","Personifications of Evil Score",
+							  "Masterminds Score","Equals Score","Corrupted Score","Other Score"])
+	for i in range(len(df.index)):
+		row = df.iloc[i]
+
+		index = argmax([row["Anti Villain Score"], row["Authority Figures Score"], row["Fanatics Score"],
+					   row["Machines Score"], row["Personifications of Evil Score"], row["Masterminds Score"],
+					   row["Equals Score"], row["Corrupted Score"], row["Other Score"]]) + 4
+
+		row.update(update)
+		row[row.index[index]] = 1
+
+		df.iloc[i] = row
+
+	return df
 
 
 def types(df:pd.DataFrame) -> dict:
@@ -284,7 +307,7 @@ def types(df:pd.DataFrame) -> dict:
 
 
 def get_vocab(series:pd.Series, regex=" "):
-	return series.str.split(regex, expand=True).stack().unique()
+	return list(series.str.split(regex, expand=True).stack().unique())
 
 
 def main():
